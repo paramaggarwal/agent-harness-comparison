@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nuxt dev --extends docus",
     "build": "nuxt build --extends docus",
-    "generate": "nuxt generate --extends docus && node scripts/post-generate.mjs",
+    "generate": "nuxt generate --extends docus",
     "preview": "nuxt preview --extends docus"
   },
   "dependencies": {
