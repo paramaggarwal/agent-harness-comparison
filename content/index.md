@@ -39,4 +39,4 @@ That difference heavily impacts how far architecture conclusions can be validate
 
 Analysis snapshot: **February 6, 2026**.
 
-See `docs/appendix/repo-snapshots.mdx` for exact commit SHAs.
+See [Repo Snapshots](/appendix/repo-snapshots) for exact commit SHAs.

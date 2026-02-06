@@ -22,7 +22,7 @@ This report uses **`sst/opencode`** for the OpenCode deep-dive.
 
 - Conclusions are based on checked-in files only.
 - If a repo contains docs/installers/plugins but not runtime source, the report explicitly calls that out and avoids speculative implementation claims.
-- Direct file references are provided throughout and consolidated in `docs/appendix/evidence-map.mdx`.
+- Direct file references are provided throughout and consolidated in [Evidence Map](/appendix/evidence-map).
 
 ## What This Is Not
 

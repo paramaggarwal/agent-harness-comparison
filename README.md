@@ -1,26 +1,28 @@
-# CLI Agent Architecture Comparison Report
+# Agent Harness Comparison Docs
 
-Mint-structured multi-file technical report comparing:
+This repository now uses [Docus](https://docus.dev) (Nuxt Content + Nuxt UI theme) and is deployed on GitHub Pages.
 
-- Codex (`openai/codex`)
-- Gemini CLI (`google-gemini/gemini-cli`)
-- OpenCode (`sst/opencode`)
-- Claude Code repo (`anthropics/claude-code`)
-- Copilot CLI repo (`github/copilot-cli`)
-
-## Docs Structure
-
-- `mint.json` (Mint navigation/config)
-- `docs/` (all report pages)
-
-## Open Locally with Mint
+## Local development
 
 ```bash
-npm install -g mintlify
-cd /Users/param/Developer/cli-agent-comparison/report
-mintlify dev
+npm install
+npm run dev
 ```
 
-## Snapshot Date
+## Build static site
 
-Research snapshot date: February 6, 2026.
+```bash
+npm run generate
+```
+
+Static output is generated to:
+
+- `.output/public`
+
+## GitHub Pages
+
+The published site is served from the `gh-pages` branch.
+
+Live URL:
+
+- `https://paramaggarwal.com/agent-harness-comparison/`
