@@ -1,0 +1,45 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "CLI Agent Internals Comparison",
+  "description": "Code-level comparison of Codex, Gemini CLI, OpenCode, Claude Code repo, and Copilot CLI repo",
+  "theme": "mint",
+  "navigation": [
+    {
+      "group": "Overview",
+      "pages": [
+        "docs/index",
+        "docs/methodology",
+        "docs/executive-summary"
+      ]
+    },
+    {
+      "group": "Comparative Analysis",
+      "pages": [
+        "docs/comparisons/capability-matrix",
+        "docs/comparisons/runtime-architecture",
+        "docs/comparisons/auth-and-providers",
+        "docs/comparisons/safety-and-permissions",
+        "docs/comparisons/tools-and-extensibility",
+        "docs/comparisons/headless-and-automation"
+      ]
+    },
+    {
+      "group": "Repository Deep Dives",
+      "pages": [
+        "docs/repositories/codex",
+        "docs/repositories/gemini-cli",
+        "docs/repositories/opencode",
+        "docs/repositories/claude-code",
+        "docs/repositories/copilot-cli"
+      ]
+    },
+    {
+      "group": "Appendix",
+      "pages": [
+        "docs/appendix/repo-snapshots",
+        "docs/appendix/evidence-map",
+        "docs/appendix/limitations"
+      ]
+    }
+  ]
+}
