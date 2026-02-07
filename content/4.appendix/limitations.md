@@ -1,33 +1,41 @@
 # Limitations
 
-## Repository-Only Visibility
+## Repository Visibility Constraint
 
-This report is constrained to source files present in the analyzed repositories at the snapshot commits.
+This analysis only asserts what is visible in the checked-out source repositories.
 
-- If runtime internals are distributed in binaries or private repositories, they are out of scope.
-- For Claude Code and Copilot CLI repos, this materially limits architecture-level assertions.
+That means:
 
-## No Runtime Benchmarking
+- Closed-source runtime components are out of scope.
+- Binary-only behavior is out of scope.
+- Documentation claims without matching implementation evidence are treated as unverified.
 
-No controlled benchmark was run for:
+This constraint is especially material for the analyzed Claude Code and Copilot CLI repositories, where full harness internals are not exposed in-repo.
+
+## No Performance Benchmarks
+
+We did not run controlled benchmark suites for:
 
 - Latency
-- Token efficiency
-- Tool success rates
+- Cost efficiency
+- Output quality
+- Tool success rate
 - Diff quality
-- Cost per task
 
-## No Reverse Engineering of Binaries
+This documentation is architecture and implementation oriented, not a leaderboard.
 
-No decompilation/reverse engineering of downloaded binaries was performed.
+## No Reverse Engineering
+
+No binary reverse engineering or decompilation was performed.
 
 ## Configuration Sensitivity
 
-Behavior in all CLIs can vary significantly by:
+Actual behavior can vary substantially depending on:
 
-- model/provider selection
-- policy/permission settings
-- local hooks/extensions/MCP servers
-- environment variables and credentials
+- Model/provider selection
+- API limits and auth context
+- Permission/policy settings
+- Loaded extensions/hooks/skills/MCP servers
+- Local environment and filesystem shape
 
-So this report emphasizes architecture and implementation surfaces, not absolute behavior under every runtime configuration.
+So these findings should be read as **implementation capability and architecture posture**, not guaranteed outcomes for every deployment profile.

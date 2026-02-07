@@ -1,32 +1,78 @@
-# Safety, Permissions, and Sandbox Comparison
+# Safety, Permissions, and Sandbox Model
+
+Safety is where implementation details matter most. Prompt instructions are not a safety model; execution controls are.
 
 ## Codex
 
-- Central tool orchestrator mediates approvals and sandbox selection before execution.
-- Explicit exec policy supports allow/prompt/forbid and prefix-rule proposal behavior.
-- Platform-aware sandbox handling (macOS/Linux/Windows pathways) and retry behavior on sandbox denial.
+Codex exposes explicit orchestration around approvals and sandboxing in core runtime code.
 
-Interpretation: highly formalized safety pipeline with runtime-level enforcement hooks.
+Key evidence paths:
+
+- `codex-rs/core/src/tools/orchestrator.rs`
+- `codex-rs/core/src/tools/sandboxing.rs`
+- `codex-rs/core/src/exec_policy.rs`
+- `codex-rs/core/src/exec.rs`
+
+This is a formalized safety pipeline with platform-specific execution handling.
 
 ## Gemini CLI
 
-- Policy engine supports approval modes, wildcard matching, and rule precedence.
-- Scheduler integrates policy and confirmation flow for tool execution.
-- Sandbox configuration supports macOS restrictions and container-based options.
+Gemini CLI expresses safety through policy services and scheduler integration.
 
-Interpretation: policy is a first-class service integrated with tool scheduling and user confirmations.
+Key evidence paths:
+
+- `packages/core/src/policy/policy-engine.ts`
+- `packages/core/src/policy/config.ts`
+- `packages/core/src/scheduler/scheduler.ts`
+- `packages/cli/src/config/sandboxConfig.ts`
+- `packages/cli/src/utils/sandbox.ts`
+
+This gives Gemini CLI an explicit, inspectable policy path before tool execution.
 
 ## OpenCode
 
-- Permission system supports `allow/ask/deny` semantics at runtime.
-- Tools request permissions directly (for example: edit/write/bash/external directory access).
-- Non-interactive `run` flow explicitly denies interactive question/plan transitions and auto-rejects prompted permissions.
+OpenCode ties permissions directly to tool actions using `allow`, `ask`, and `deny` flows.
 
-Interpretation: permission model is tightly coupled to tool actions and session flow control.
+```ts
+// packages/opencode/src/permission/next.ts
+// permission decision pipeline (allow / ask / deny)
+```
 
-## Claude Code repo / Copilot CLI repo
+```ts
+// packages/opencode/src/cli/cmd/run.ts
+// non-interactive run path rejects interactive permission prompts
+```
 
-- Claude repo exposes hook-level guardrail examples and script-based checks.
-- Copilot repo exposes installer checks and docs claims, but not runtime safety engine internals.
+Key evidence paths:
 
-Interpretation: safety internals are not fully auditable from these two repos alone.
+- `packages/opencode/src/permission/next.ts`
+- `packages/opencode/src/tool/bash.ts`
+- `packages/opencode/src/tool/write.ts`
+- `packages/opencode/src/tool/edit.ts`
+
+## Pi
+
+Pi exposes runtime control points (tool set selection, session controls, abort paths) and a dedicated sandbox model in the `mom` package (`host` vs `docker`).
+
+```ts
+// packages/mom/src/sandbox.ts
+export type SandboxConfig = { type: 'host' } | { type: 'docker'; container: string }
+```
+
+```md
+# packages/mom/docs/sandbox.md
+All tool execution (`bash`, `read`, `write`, `edit`) happens inside the container
+```
+
+Within `pi-coding-agent`, safety appears more compositional (tool surface and extension behavior) than a single centralized policy engine equivalent to Codex/Gemini/OpenCode.
+
+## Claude Code repo and Copilot CLI repo
+
+- Claude Code repo: hook examples and script-based guardrails are visible.
+- Copilot CLI repo: installer/documentation surfaces are visible.
+
+A full runtime safety engine is not directly auditable from these repository snapshots.
+
+## Practical Advice
+
+If you need strict enterprise controls, prefer harnesses with explicit policy/sandbox enforcement paths in core runtime code. In this comparison set, that signal is strongest in Codex, Gemini CLI, and OpenCode, with Pi offering a customizable model and sandbox patterns visible in adjacent runtime packages.

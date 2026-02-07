@@ -1,38 +1,35 @@
 # Copilot CLI Repo (`github/copilot-cli`) Deep Dive
 
+The analyzed `copilot-cli` repository is best understood as a distribution/install/update surface in this snapshot, not a full open runtime internals tree.
+
 ## What Is Present
 
-This repository snapshot is mainly:
+Key artifacts in this repo:
 
-- User docs and changelog
-- Installer script
-- Packaging/update workflow metadata
+- User-facing docs and changelog (`README.md`, `changelog.md`)
+- Installer logic (`install.sh`)
+- Release/update automation (`.github/workflows/winget.yml`)
 
-Key files:
+## Code-Visible Mechanics
 
-- `README.md`
-- `changelog.md`
-- `install.sh`
-- `.github/workflows/winget.yml`
+The installer script reveals practical platform behavior:
 
-## Installer and Update Behavior (Code-Visible)
+- Platform/arch detection.
+- Release channel/version resolution.
+- Download/checksum/install sequence.
+- PATH guidance.
 
-- Platform detection and Windows winget fallback: `install.sh:14-27`
-- Arch detection (x64/arm64): `install.sh:30-35`
-- Version resolution behavior (`latest`, `prerelease`, explicit): `install.sh:37-63`
-- Download, checksum validation, install, PATH guidance: `install.sh:66-166`
-- WinGet publish/update automation on release: `.github/workflows/winget.yml:1-44`
+These are useful for operational trust in installation and update flow.
 
-## What Is Not Present
+## What Is Not Visible Here
 
-No full runtime implementation files were found for:
+In this snapshot, the following internals are not exposed as a comparable runtime source:
 
-- Agent loop internals
-- Tool invocation orchestration
-- Permission/sandbox machinery
-- Session state engine
-- Plugin/MCP loader internals
+- Core agent loop implementation.
+- Tool execution/safety policy engine.
+- Session/state runtime internals.
+- Plugin/MCP runtime loading internals.
 
-## Conclusion
+## Practical Read
 
-From this repository alone, architecture-level claims about Copilot CLI internals cannot be directly code-verified beyond installation/distribution/update mechanics and feature statements in documentation.
+Use this repo to inspect installation and distribution behavior. For a runtime internals comparison, rely on repositories that expose their harness implementation directly (Codex, Gemini CLI, OpenCode, Pi in this dataset).

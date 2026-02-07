@@ -1,57 +1,62 @@
 # OpenCode (`sst/opencode`) Deep Dive
 
-## Runtime Composition
+OpenCode combines a terminal-first UX with an explicit server/attach model. The result is a runtime that works as both a local coding harness and a remotely controllable service.
 
-OpenCode uses a hybrid packaging/runtime model:
+## Runtime Shape
 
-- Node wrapper dispatches to platform-specific binary names: `packages/opencode/bin/opencode:1-84`
-- Main implementation is Bun + TypeScript in `packages/opencode/src/*`: `packages/opencode/package.json:1-98`
+OpenCode packages as a CLI wrapper while keeping runtime logic in TypeScript modules under `packages/opencode/src`.
 
-## Entrypoints and Commands
+Key evidence paths:
 
-- Top-level CLI parsing with `yargs`, command registration, middleware, strict failure handling: `packages/opencode/src/index.ts:1-159`
-- Non-interactive command: `packages/opencode/src/cli/cmd/run.ts:1-582`
-- Interactive TUI command thread model: `packages/opencode/src/cli/cmd/tui/thread.ts:1-150`
+- `packages/opencode/bin/opencode`
+- `packages/opencode/src/index.ts`
+- `packages/opencode/src/cli/cmd/*`
 
-## Provider and Auth Design
+## Permission Model
 
-- Provider abstraction and per-provider loader/auth behavior: `packages/opencode/src/provider/provider.ts:1-220`
-- Auth file persistence with restrictive file mode: `packages/opencode/src/auth/index.ts:1-74`
+Permissions are integrated into tool execution with explicit `allow/ask/deny` semantics.
 
-## Permission and Safety Model
+```ts
+// packages/opencode/src/permission/next.ts
+// permission decision lifecycle
+```
 
-- Permission engine (`allow/ask/deny`) and async prompt/reply flow: `packages/opencode/src/permission/next.ts:1-176`
-- `run` mode denies interactive-only actions (`question`, `plan_enter`, `plan_exit`) and auto-rejects permission prompts: `packages/opencode/src/cli/cmd/run.ts:327-510`
-- Tool-level permission checks:
-  - `edit`: `packages/opencode/src/tool/edit.ts:27-123`
-  - `write`: `packages/opencode/src/tool/write.ts:14-66`
-  - `bash`: `packages/opencode/src/tool/bash.ts:55-174`
-  - external directory gating: `packages/opencode/src/tool/external-directory.ts:1-33`
+```ts
+// packages/opencode/src/cli/cmd/run.ts
+// non-interactive run path denies interactive-only flows
+```
 
-## Tool Runtime and Extensibility
+Tool-level permission checks are visible across built-ins:
 
-- Core tool definition abstraction and output truncation: `packages/opencode/src/tool/tool.ts:1-86`
-- Tool registry (built-ins + experimental + plugins, model-aware tool gating): `packages/opencode/src/tool/registry.ts:1-112`
-- Batch tool with parallel execution constraints: `packages/opencode/src/tool/batch.ts:1-176`
-- MCP support for local stdio and remote streamable HTTP/SSE: `packages/opencode/src/mcp/index.ts:1-360`
-- Command synthesis from MCP prompts: `packages/opencode/src/command/index.ts:56-138`
+- `packages/opencode/src/tool/bash.ts`
+- `packages/opencode/src/tool/write.ts`
+- `packages/opencode/src/tool/edit.ts`
+- `packages/opencode/src/tool/external-directory.ts`
 
-## Client/Server Architecture
+## Extensibility and MCP
 
-- In-process app fetch path usable from `run`: `packages/opencode/src/cli/cmd/run.ts:575-582`
-- Headless server mode (`serve`): `packages/opencode/src/cli/cmd/serve.ts:1-21`
-- HTTP/SSE server, auth, CORS, event stream: `packages/opencode/src/server/server.ts:1-354`
-- Remote attach flow for TUI to server: `packages/opencode/src/cli/cmd/tui/attach.ts:1-52`
+OpenCode merges built-ins, plugins, and MCP-backed capabilities.
 
-## Agents and Session State
+Key evidence paths:
 
-- Agent defaults + merged config permissions: `packages/opencode/src/agent/agent.ts:1-238`
-- Session processing/streaming and loop handling: `packages/opencode/src/session/processor.ts:1-200`
-- JSON-file storage and migration model: `packages/opencode/src/storage/storage.ts:1-166`
-- Per-directory instance scoping: `packages/opencode/src/project/instance.ts:1-92`
+- `packages/opencode/src/tool/registry.ts`
+- `packages/opencode/src/mcp/index.ts`
+- `packages/opencode/src/command/index.ts`
 
-## Distinctive Engineering Characteristics
+## Server and Remote Control
 
-1. Explicit client/server duality (local in-process + remote HTTP attach).
-2. Permission model integrated directly into tool calls and run-loop behavior.
-3. Provider-agnostic architecture with wide model backend coverage.
+OpenCode’s client/server duality is a defining trait.
+
+- Serve mode: `packages/opencode/src/cli/cmd/serve.ts`
+- Server runtime (HTTP/SSE/auth): `packages/opencode/src/server/server.ts`
+- Remote TUI attach: `packages/opencode/src/cli/cmd/tui/attach.ts`
+
+This gives OpenCode a practical path for remote orchestration without abandoning local CLI ergonomics.
+
+## Practical Read
+
+OpenCode is strongest when you want:
+
+1. Direct tool permission handling in runtime code.
+2. Both local and remote execution modes.
+3. A provider-agnostic architecture with explicit extensibility modules.

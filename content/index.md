@@ -1,16 +1,17 @@
 ---
 seo:
-  title: CLI Agent Internals Comparison (Code-Level)
-  description: Source-level technical comparison of Codex, Gemini CLI, OpenCode, Claude Code repo, and Copilot CLI repo.
+  title: Agent Harness Comparison
+  description: The best place to learn how popular coding-agent CLIs differ at the source-code level.
 ---
 
 ::u-page-hero
 #title
-CLI Agent Internals Comparison (Code-Level)
+Agent Harness Comparison
 
 #description
-Source-level technical comparison of what these repositories actually expose in code:
-`openai/codex`, `google-gemini/gemini-cli`, `sst/opencode`, `anthropics/claude-code`, and `github/copilot-cli`.
+**Mission:** become the best place to learn the real technical differences between today’s popular coding-agent CLIs.
+
+This site compares implementation choices you can verify in code: runtime architecture, tool execution, permissions, auth models, extension systems, and non-interactive automation paths.
 
 #links
   :::u-button
@@ -20,7 +21,7 @@ Source-level technical comparison of what these repositories actually expose in 
   to: /overview/executive-summary
   trailing-icon: i-lucide-arrow-right
   ---
-  Read Executive Summary
+  Start With Executive Summary
   :::
 
   :::u-button
@@ -30,56 +31,88 @@ Source-level technical comparison of what these repositories actually expose in 
   size: xl
   to: /comparative-analysis/capability-matrix
   ---
-  View Capability Matrix
+  See Full Matrix
   :::
 ::
 
 ::u-page-section
 #title
-What this documentation covers
+What You Will Learn
 
 #description
-This report is structured for fast technical review, from high-level outcomes to file-level evidence.
+We focus on **code-visible behavior**, not marketing checklists. Every major claim maps to a concrete file in the analyzed repositories.
 
 #features
   :::u-page-feature
   ---
-  title: Overview
-  description: Start with the executive summary and methodology to understand scope, evidence standards, and assumptions.
-  to: /overview/executive-summary
-  icon: i-lucide-compass
-  ---
-  :::
-
-  :::u-page-feature
-  ---
-  title: Comparative Analysis
-  description: Compare runtime architecture, auth/provider models, safety systems, tools, and automation paths side by side.
+  title: Architecture, Not Hype
+  description: Understand how each CLI is built internally, where policy is enforced, and what is truly inspectable.
   to: /comparative-analysis/runtime-architecture
-  icon: i-lucide-git-compare
+  icon: i-lucide-cpu
   ---
   :::
 
   :::u-page-feature
   ---
-  title: Repository Deep Dives
-  description: Inspect per-repository technical details for Codex, Gemini CLI, OpenCode, Claude Code repo, and Copilot CLI repo.
-  to: /repository-deep-dives/codex
-  icon: i-lucide-file-code
+  title: Automation Reality Check
+  description: Compare text mode, JSON mode, RPC/server mode, and how each tool behaves in non-interactive workflows.
+  to: /comparative-analysis/headless-and-automation
+  icon: i-lucide-terminal-square
   ---
   :::
 
   :::u-page-feature
   ---
-  title: Appendix and Evidence
-  description: Trace claims to concrete files, snapshot SHAs, and explicit limitations of repository-only visibility.
-  to: /appendix/evidence-map
-  icon: i-lucide-folder-open
+  title: Safety and Permissions
+  description: See how approvals, sandboxing, and execution controls are actually modeled in source.
+  to: /comparative-analysis/safety-and-permissions
+  icon: i-lucide-shield-check
+  ---
+  :::
+
+  :::u-page-feature
+  ---
+  title: Deep Dives Per Repo
+  description: Jump into Codex, Gemini CLI, OpenCode, Pi, Claude Code repo, and Copilot CLI repo with file-level evidence.
+  to: /repository-deep-dives/pi-mono
+  icon: i-lucide-file-search
   ---
   :::
 ::
 
+::u-page-section
+#title
+Compared Repositories
+
+#description
+The analysis currently covers these six repositories:
+
+```text
+openai/codex
+google-gemini/gemini-cli
+sst/opencode
+badlogic/pi-mono
+anthropics/claude-code
+github/copilot-cli
+```
+
+Read [Methodology](/overview/methodology) for inclusion rules and [Evidence Map](/appendix/evidence-map) for source tracing.
+::
+
+::u-page-section
+#title
+How To Read This Site
+
+#description
+If you are evaluating an agent harness for your team, this sequence gives the fastest signal:
+
+1. Read [Executive Summary](/overview/executive-summary) to understand the high-level split between fully inspectable runtimes and surface repos.
+2. Use [Capability Matrix](/comparative-analysis/capability-matrix) to narrow candidates by required traits.
+3. Go deep with [Runtime Architecture](/comparative-analysis/runtime-architecture) and [Safety and Permissions](/comparative-analysis/safety-and-permissions).
+4. Validate assumptions in [Repository Deep Dives](/repository-deep-dives/codex) and [Evidence Map](/appendix/evidence-map).
+::
+
 ::note
-Analysis snapshot date: **February 6, 2026**.
-See [Repository Snapshots](/appendix/repo-snapshots) for exact commit SHAs.
+Snapshot window: **February 6-7, 2026**.
+See [Repository Snapshots](/appendix/repo-snapshots) for exact SHAs.
 ::

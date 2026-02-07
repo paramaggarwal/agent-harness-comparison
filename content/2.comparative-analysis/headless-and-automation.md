@@ -1,30 +1,78 @@
-# Headless, Non-Interactive, and Automation Paths
+# Headless and Automation Paths
+
+For CI/CD and scripted workflows, interactive UX matters less than protocol clarity. This section focuses on what you can reliably automate from source-visible behavior.
 
 ## Codex
 
-- Interactive TUI is primary.
-- App-server binary provides a headless integration path over stdio or websocket transports.
-- Supports automation embedding scenarios without requiring the terminal UI loop.
+Codex provides an app-server boundary alongside the interactive TUI.
+
+Key evidence paths:
+
+- `codex-rs/app-server/src/main.rs`
+- `codex-rs/app-server/src/lib.rs`
+
+This is useful when you want a stable integration boundary separate from terminal rendering.
 
 ## Gemini CLI
 
-- Explicit non-interactive flow with structured output options:
-  - `text`
-  - `json`
-  - `stream-json` (JSONL event stream)
-- Tool calls, errors, and terminal results can be consumed programmatically in scripts.
+Gemini CLI has one of the clearest structured output stories in this set.
+
+- `text`
+- `json`
+- `stream-json` (event stream)
+
+Key evidence paths:
+
+- `packages/cli/src/nonInteractiveCli.ts`
+- `packages/cli/src/config/config.ts`
+- `packages/core/src/output/json-formatter.ts`
+- `packages/core/src/output/stream-json-formatter.ts`
 
 ## OpenCode
 
-- `run` command for non-interactive prompts and scripted operation.
-- `serve` command runs a headless server; `attach` connects to remote servers.
-- Internal architecture allows in-process fetch for local execution and HTTP/SSE for remote client scenarios.
+OpenCode offers multiple automation entrypoints:
 
-## Claude Code repo / Copilot CLI repo
+- `run` for non-interactive execution
+- `serve` for headless server mode
+- `attach` for remote interaction
 
-- These repositories do not expose full non-interactive runtime internals in code.
-- Only extension/docs/installer surfaces are directly inspectable here.
+Key evidence paths:
 
-## Practical Engineering Impact
+- `packages/opencode/src/cli/cmd/run.ts`
+- `packages/opencode/src/cli/cmd/serve.ts`
+- `packages/opencode/src/server/server.ts`
+- `packages/opencode/src/cli/cmd/tui/attach.ts`
 
-If your team needs stable machine-consumable event pipelines, Gemini CLI and OpenCode expose explicit non-interactive protocols in source. Codex exposes a stronger app-server boundary. Claude/Copilot runtime automation internals cannot be fully validated from these specific repos.
+## Pi
+
+Pi exposes three concrete non-interactive/integration surfaces in code:
+
+1. Print mode (single shot) with text or JSON output.
+2. JSON event output in print mode.
+3. RPC mode over JSON lines on stdin/stdout.
+
+```ts
+// packages/coding-agent/src/cli/args.ts
+--mode <mode> // text | json | rpc
+--print       // non-interactive
+```
+
+```ts
+// packages/coding-agent/src/modes/rpc/rpc-mode.ts
+// JSON commands on stdin, responses/events on stdout
+```
+
+```ts
+// packages/coding-agent/src/modes/print-mode.ts
+if (mode === 'json') console.log(JSON.stringify(event))
+```
+
+This makes Pi particularly attractive for embedding into editor plugins, custom wrappers, or orchestration services.
+
+## Claude Code repo and Copilot CLI repo
+
+In the analyzed snapshots, full non-interactive runtime internals are not directly visible.
+
+## Engineering Impact
+
+If machine-consumable event streams and embedded operation are a hard requirement, Gemini CLI, OpenCode, and Pi expose especially explicit protocols, with Codex app-server also a strong integration surface.

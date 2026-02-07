@@ -1,40 +1,78 @@
-# Tools and Extensibility Comparison
+# Tools and Extensibility
+
+Most teams outgrow default tool sets quickly. The real question is how each harness lets you add behavior without forking the runtime.
 
 ## Codex
 
-- Tool handling includes built-ins, dynamic tools, and MCP routing.
-- MCP connection manager advertises capabilities and aggregates tools across configured servers.
-- Skills are modeled and can carry env-var dependencies resolved in-session.
+Codex exposes extensibility through MCP integration, skill modeling, and tool orchestration boundaries in Rust.
 
-Design pattern: typed tool protocol + centralized orchestration.
+Key evidence paths:
+
+- `codex-rs/core/src/mcp_connection_manager.rs`
+- `codex-rs/core/src/mcp_tool_call.rs`
+- `codex-rs/core/src/skills/model.rs`
+- `codex-rs/core/src/skills/env_var_dependencies.rs`
+
+Codex’s model is protocol-heavy and centralized, which is good for predictable behavior at scale.
 
 ## Gemini CLI
 
-- Tool registry merges built-ins, discovered tools, and MCP-backed tools.
-- Extension manager lifecycle includes refresh of hooks/agents/skills/memory surfaces.
-- Subagent and A2A-related components are explicit in core modules.
+Gemini CLI is extension-forward. Hooks, agents, skills, and MCP integrations all sit inside explicit TypeScript services.
 
-Design pattern: extension-first modular services with scheduler-mediated tool execution.
+Key evidence paths:
+
+- `packages/core/src/tools/tool-registry.ts`
+- `packages/core/src/hooks/hookSystem.ts`
+- `packages/core/src/utils/extensionLoader.ts`
+- `packages/core/src/agents/agentLoader.ts`
+- `packages/core/src/skills/skillManager.ts`
+
+This is one of the most composable designs in the set if your team plans to add custom behaviors frequently.
 
 ## OpenCode
 
-- Registry merges built-ins, experimental tools, and plugin-provided tools.
-- MCP supports local stdio and remote streamable HTTP/SSE servers.
-- Skills are mapped into commands/tooling and agent configuration is merged from defaults + user config.
+OpenCode merges built-ins, experimental tools, and plugin/MCP surfaces with a pragmatic runtime registry.
 
-Design pattern: provider-agnostic coding agent with integrated server and extensibility primitives.
+Key evidence paths:
 
-## Claude Code repo
+- `packages/opencode/src/tool/registry.ts`
+- `packages/opencode/src/tool/tool.ts`
+- `packages/opencode/src/mcp/index.ts`
+- `packages/opencode/src/command/index.ts`
 
-- Very strong extension content surface: commands, agents, skills, and hook scripts.
-- Hookify demonstrates policy-like pre/post tool interception behavior in plugin code.
-- Core extension loading/runtime semantics are not present in repository implementation code.
+Its extensibility is tightly connected to execution modes (`run`, TUI, serve/attach), which makes automation customization practical.
 
-Design pattern: extension assets are visible, core engine is not.
+## Pi
 
-## Copilot CLI repo
+Pi treats extensibility as a first-class product shape: extensions, skills, prompt templates, themes, and package installation are built into the CLI workflow.
 
-- Docs indicate MCP and plugin capabilities.
-- Runtime plugin/MCP loader internals are not present in this repository snapshot.
+```ts
+// packages/coding-agent/src/index.ts (excerpted surface)
+export { discoverAndLoadExtensions, createExtensionRuntime } from './core/extensions/index.js'
+export { loadSkills, loadSkillsFromDir } from './core/skills.js'
+```
 
-Design pattern: distribution/documentation surface only in analyzed repo.
+```ts
+// packages/coding-agent/src/main.ts (package commands)
+// install / remove / update / list extension packages
+```
+
+Key evidence paths:
+
+- `packages/coding-agent/src/core/extensions/index.ts`
+- `packages/coding-agent/src/core/skills.ts`
+- `packages/coding-agent/src/main.ts`
+- `packages/coding-agent/README.md`
+
+Pi is a strong fit for teams that want “compose your own harness behavior” without maintaining a fork.
+
+## Claude Code repo and Copilot CLI repo
+
+Both repos expose meaningful integration surfaces, but the full runtime extension loader path is not fully visible in the analyzed snapshots.
+
+- Claude Code repo: rich plugin/hook content.
+- Copilot CLI repo: docs and distribution assets.
+
+## Bottom Line
+
+If extension depth and source-level control are priorities, Gemini CLI and Pi are especially strong in composability, while Codex and OpenCode provide robust extensibility with more explicit runtime guardrails.

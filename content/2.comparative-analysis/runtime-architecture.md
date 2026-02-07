@@ -1,39 +1,93 @@
-# Runtime Architecture Comparison
+# Runtime Architecture
 
-## Codex
+Architecture is where these CLIs diverge most. The key question is not only “what features exist,” but **where control lives**: native runtime, service layer, or extension shell.
 
-- Distribution model: Node launcher dispatching to platform-specific binaries.
-- Implementation center: Rust (`codex-rs/*`) with separate binaries for TUI, app-server, MCP server, and sandbox utilities.
-- Strong separation between protocol, core logic, tooling, state, and UI crates.
+## Codex: Native Core With Explicit Binary Boundaries
 
-Operational effect: favors deterministic native behavior and strict subsystem boundaries.
+Codex uses a JavaScript launcher to dispatch to platform binaries, while most behavior lives in Rust crates.
 
-## Gemini CLI
+```js
+// codex-cli/bin/codex.js
+const { platform, arch } = process;
+const exe = `codex-${platform}-${arch}`;
+spawn(exe, process.argv.slice(2), { stdio: 'inherit' });
+```
 
-- Distribution model: Node package, TypeScript monorepo.
-- Implementation center: `packages/cli` + `packages/core` with explicit services for policy, tools, scheduler, hooks, agents, and output formats.
-- High test density around most core modules.
+```rust
+// codex-rs/tui/src/main.rs
+fn main() -> anyhow::Result<()> {
+    codex_tui::run()
+}
+```
 
-Operational effect: fast iteration and composability via TypeScript services with explicit orchestration layers.
+This split gives Codex a strongly typed native core and clear process boundaries (`tui`, `app-server`, `mcp-server`).
 
-## OpenCode
+## Gemini CLI: Service-Oriented TypeScript Monorepo
 
-- Distribution model: native binary wrappers launched by Node shim, with runtime implementation in Bun/TypeScript.
-- Implementation center: `packages/opencode/src/*` with yargs CLI, server, tools, permissions, provider, session, and MCP modules.
-- Explicit client/server posture (local in-process fetch, optional HTTP serve/attach flow).
+Gemini CLI keeps orchestration in TypeScript modules with explicit subsystem boundaries: scheduler, policy, hooks, tools, agents, and output formatters.
 
-Operational effect: terminal-first UX with remote-control pathway built into architecture.
+```ts
+// packages/cli/src/config/config.ts (shape)
+outputFormat: 'text' | 'json' | 'stream-json'
+```
 
-## Claude Code Repository
+```ts
+// packages/core/src/scheduler/scheduler.ts (conceptual flow)
+// user input -> policy checks -> tool execution -> streamed events
+```
 
-- Exposed structure is plugin/hook ecosystem, skills/agents/commands markdown, and utility scripts.
-- Core runtime internals (command loop, tool executor, model orchestration, policy engine) are not present in this repository snapshot.
+This design favors rapid iteration and makes orchestration behavior easy to inspect in one language stack.
 
-Operational effect: highly useful for extension behavior, but not sufficient for full runtime architecture audit.
+## OpenCode: CLI + Local Runtime + Remote Server Path
 
-## Copilot CLI Repository
+OpenCode combines a local CLI runtime with explicit server/attach mechanics.
 
-- Exposed structure is installer script, changelog, README, and release/update workflows.
-- Core runtime internals are not present in this repository snapshot.
+```ts
+// packages/opencode/src/cli/cmd/serve.ts
+// boot headless server
+```
 
-Operational effect: enough to inspect installation/update channel behavior, not enough for harness internals.
+```ts
+// packages/opencode/src/server/server.ts
+// HTTP/SSE event stream + auth + CORS handling
+```
+
+This architecture is strong for teams that want both interactive terminal usage and controllable remote execution.
+
+## Pi: Minimal Agent Core With Multi-Mode Surface
+
+Pi exposes a shared `AgentSession` abstraction and multiple modes on top (`interactive`, print text/JSON, and RPC).
+
+```ts
+// packages/coding-agent/src/main.ts
+if (mode === 'rpc') await runRpcMode(session)
+else if (isInteractive) await new InteractiveMode(session, ...).run()
+else await runPrintMode(session, { mode, ... })
+```
+
+```ts
+// packages/agent/src/agent-loop.ts
+export function agentLoop(...) {
+  stream.push({ type: 'turn_start' })
+  // stream LLM response -> execute tools -> emit tool result messages
+}
+```
+
+Pi’s architecture is intentionally “small core + customizable surface,” with deep extension/package hooks.
+
+## Claude Code Repo and Copilot CLI Repo
+
+In the analyzed snapshots:
+
+- `anthropics/claude-code` primarily exposes plugins, hooks, and operational assets.
+- `github/copilot-cli` primarily exposes installer/update/docs surfaces.
+
+These are useful repositories, but they do not expose a full runtime architecture equivalent to Codex/Gemini/OpenCode/Pi in this comparison.
+
+## Practical Engineering Implication
+
+If you are embedding an agent into CI, automation, or internal developer platforms:
+
+1. Prefer repos that expose runtime loop and tool orchestration code directly.
+2. Verify non-interactive protocol details in code, not only docs.
+3. Treat extension-only repos as ecosystem assets, not full harness internals.
