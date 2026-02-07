@@ -1,42 +1,85 @@
-# CLI Agent Internals Comparison (Code-Level)
+---
+seo:
+  title: CLI Agent Internals Comparison (Code-Level)
+  description: Source-level technical comparison of Codex, Gemini CLI, OpenCode, Claude Code repo, and Copilot CLI repo.
+---
 
-This report compares what these repositories **actually expose in code**:
+::u-page-hero
+#title
+CLI Agent Internals Comparison (Code-Level)
 
-- OpenAI Codex CLI (`openai/codex`)
-- Google Gemini CLI (`google-gemini/gemini-cli`)
-- OpenCode (`sst/opencode`)
-- Claude Code repo (`anthropics/claude-code`)
-- GitHub Copilot CLI repo (`github/copilot-cli`)
+#description
+Source-level technical comparison of what these repositories actually expose in code:
+`openai/codex`, `google-gemini/gemini-cli`, `sst/opencode`, `anthropics/claude-code`, and `github/copilot-cli`.
 
-## Scope
+#links
+  :::u-button
+  ---
+  color: neutral
+  size: xl
+  to: /overview/executive-summary
+  trailing-icon: i-lucide-arrow-right
+  ---
+  Read Executive Summary
+  :::
 
-The goal was a source-level technical comparison of:
+  :::u-button
+  ---
+  color: neutral
+  variant: outline
+  size: xl
+  to: /comparative-analysis/capability-matrix
+  ---
+  View Capability Matrix
+  :::
+::
 
-- Runtime architecture
-- Entrypoints and command parsing
-- Auth/provider design
-- Safety/approval/sandbox systems
-- Tool orchestration and extensibility
-- Session/state handling
-- Interactive vs non-interactive operation
+::u-page-section
+#title
+What this documentation covers
 
-## Key Result
+#description
+This report is structured for fast technical review, from high-level outcomes to file-level evidence.
 
-There are two distinct transparency classes:
+#features
+  :::u-page-feature
+  ---
+  title: Overview
+  description: Start with the executive summary and methodology to understand scope, evidence standards, and assumptions.
+  to: /overview/executive-summary
+  icon: i-lucide-compass
+  ---
+  :::
 
-1. **Full runtime internals visible in-repo**
-- Codex
-- Gemini CLI
-- OpenCode
+  :::u-page-feature
+  ---
+  title: Comparative Analysis
+  description: Compare runtime architecture, auth/provider models, safety systems, tools, and automation paths side by side.
+  to: /comparative-analysis/runtime-architecture
+  icon: i-lucide-git-compare
+  ---
+  :::
 
-2. **Distribution/plugins/docs surfaces visible, but core runtime not present**
-- Claude Code repo (plugin + hook ecosystem and scripts)
-- Copilot CLI repo (installer/docs/workflow metadata)
+  :::u-page-feature
+  ---
+  title: Repository Deep Dives
+  description: Inspect per-repository technical details for Codex, Gemini CLI, OpenCode, Claude Code repo, and Copilot CLI repo.
+  to: /repository-deep-dives/codex
+  icon: i-lucide-file-code
+  ---
+  :::
 
-That difference heavily impacts how far architecture conclusions can be validated directly from code.
+  :::u-page-feature
+  ---
+  title: Appendix and Evidence
+  description: Trace claims to concrete files, snapshot SHAs, and explicit limitations of repository-only visibility.
+  to: /appendix/evidence-map
+  icon: i-lucide-folder-open
+  ---
+  :::
+::
 
-## Repository Snapshot Date
-
-Analysis snapshot: **February 6, 2026**.
-
-See [Repo Snapshots](/appendix/repo-snapshots) for exact commit SHAs.
+::note
+Analysis snapshot date: **February 6, 2026**.
+See [Repository Snapshots](/appendix/repo-snapshots) for exact commit SHAs.
+::
